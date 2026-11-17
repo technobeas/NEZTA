@@ -3,8 +3,13 @@ main = "src/index.js"
 compatibility_date = "2025-01-01"
 nodejs_compat = true
 
+# ...
 [vars]
 CORS_ORIGINS = "https://nezta.pages.dev,http://localhost:5173"
+DATABASE_URL = "postgresql://neondb_owner:npg_jkm4uRz7nSxG@ep-floral-mountain-bdnrzwur-pooler.c-8.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+DEMO_AUTH_SECRET = "nezta-demo-secret-change-me"
+# ...
+
 
 # Secrets (DATABASE_URL, DEMO_AUTH_SECRET) are set with:
 #   wrangler secret put DATABASE_URL
