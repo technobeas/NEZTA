@@ -1,0 +1,16 @@
+name = "nezta-api"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+nodejs_compat = true
+
+[vars]
+CORS_ORIGINS = "https://nezta.pages.dev,http://localhost:5173"
+
+# Secrets (DATABASE_URL, DEMO_AUTH_SECRET) are set with:
+#   wrangler secret put DATABASE_URL
+#   wrangler secret put DEMO_AUTH_SECRET
+#
+# NOTE: Cloudflare Workers cannot open raw TCP connections to PostgreSQL.
+# For a Workers deployment, point DATABASE_URL at a Neon serverless endpoint and
+# swap the Prisma driver for @prisma/adapter-neon (see README "Deployment").
+# The local demo runs the same Hono app on Node via src/node-server.js.

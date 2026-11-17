@@ -1,0 +1,822 @@
+// NEZTA MVP — Prisma schema (PostgreSQL)
+// Money is stored with NUMERIC(10,2). All primary keys are UUIDs.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PLATFORM_ADMIN
+  SHOP_OWNER
+  KITCHEN_STAFF
+  RIDER
+  CUSTOMER
+}
+
+enum ShopStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum OrderStatus {
+  NEW
+  CONFIRMED
+  PREPARING
+  READY_FOR_PICKUP
+  RIDER_ASSIGNED
+  PICKED_UP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+  REJECTED
+  DELIVERY_FAILED
+}
+
+enum OrderSource {
+  NORMAL
+  SUBSCRIPTION
+  BULK
+}
+
+enum ItemType {
+  PRODUCT
+  MEAL_BOX
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  UPI_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING
+  SIMULATED_PAID
+  REFUNDED
+}
+
+enum MealBoxOptionType {
+  SINGLE
+  MULTI
+  ADDON
+}
+
+enum PlanType {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+  COMPLETED
+}
+
+enum EnquiryStatus {
+  ENQUIRY_RECEIVED
+  QUOTATION_SENT
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum QuotationStatus {
+  SENT
+  ACCEPTED
+  REJECTED
+}
+
+enum BulkOrderStatus {
+  CONFIRMED
+  PREPARING
+  READY
+  DISPATCHED
+  COMPLETED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  ASSIGNED
+  ACCEPTED
+  PICKED_UP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+}
+
+enum CouponType {
+  PERCENT
+  FLAT
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         UserRole
+  shopId       String?  @db.Uuid
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  shop              Shop?                    @relation(fields: [shopId], references: [id])
+  memberships       ShopMember[]
+  customer          Customer?
+  rider             Rider?
+  orderStatusEvents OrderStatusHistory[]
+  bulkEvents        BulkOrderStatusHistory[]
+  quotations        BulkOrderQuotation[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model Shop {
+  id             String     @id @default(uuid()) @db.Uuid
+  name           String
+  slug           String     @unique
+  tagline        String?
+  description    String?
+  logoUrl        String?
+  bannerUrl      String?
+  phone          String?
+  email          String?
+  addressLine    String?
+  city           String?
+  pincode        String?
+  status         ShopStatus @default(ACTIVE)
+  rating         Decimal    @default(4.6) @db.Decimal(3, 2)
+  ratingCount    Int        @default(128)
+  commissionRate Decimal?   @db.Decimal(5, 2)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  members            ShopMember[]
+  categories         Category[]
+  products           Product[]
+  mealBoxes          MealBox[]
+  tiffinPlans        TiffinPlan[]
+  bulkPackages       BulkOrderPackage[]
+  coupons            Coupon[]
+  customers          Customer[]
+  orders             Order[]
+  subscriptions      Subscription[]
+  bulkEnquiries      BulkOrderEnquiry[]
+  bulkOrders         BulkOrder[]
+  riders             Rider[]
+  settings           ShopSetting?
+  users              User[]
+
+  @@map("shops")
+}
+
+model ShopMember {
+  id        String   @id @default(uuid()) @db.Uuid
+  shopId    String   @db.Uuid
+  userId    String   @db.Uuid
+  role      UserRole
+  createdAt DateTime @default(now())
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, userId])
+  @@map("shop_members")
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  shopId    String   @db.Uuid
+  name      String
+  slug      String
+  imageUrl  String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shop     Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@unique([shopId, slug])
+  @@map("categories")
+}
+
+model Product {
+  id                 String   @id @default(uuid()) @db.Uuid
+  shopId             String   @db.Uuid
+  categoryId         String?  @db.Uuid
+  name               String
+  slug               String
+  description        String?
+  imageUrl           String?
+  price              Decimal  @db.Decimal(10, 2)
+  unitLabel          String?  @default("per serving")
+  isVeg              Boolean  @default(true)
+  isAvailable        Boolean  @default(true)
+  isFeatured         Boolean  @default(false)
+  preparationMinutes Int      @default(15)
+  sortOrder          Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  shop            Shop               @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  category        Category?          @relation(fields: [categoryId], references: [id])
+  orderItems      OrderItem[]
+  mealBoxItems    MealBoxItem[]
+  mealBoxValues   MealBoxOptionValue[]
+  tiffinPlanItems TiffinPlanItem[]
+
+  @@unique([shopId, slug])
+  @@index([shopId, categoryId])
+  @@map("products")
+}
+
+model MealBox {
+  id          String   @id @default(uuid()) @db.Uuid
+  shopId      String   @db.Uuid
+  name        String
+  slug        String
+  description String?
+  imageUrl    String?
+  basePrice   Decimal  @db.Decimal(10, 2)
+  servings    String   @default("Serves 1")
+  prepMinutes Int      @default(25)
+  badge       String?
+  isAvailable Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  shop      Shop                @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  items     MealBoxItem[]
+  options   MealBoxOption[]
+  orderItems OrderItem[]
+
+  @@unique([shopId, slug])
+  @@map("meal_boxes")
+}
+
+model MealBoxItem {
+  id        String  @id @default(uuid()) @db.Uuid
+  mealBoxId String  @db.Uuid
+  productId String? @db.Uuid
+  label     String
+  quantity  Int     @default(1)
+  sortOrder Int     @default(0)
+
+  mealBox MealBox  @relation(fields: [mealBoxId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@index([mealBoxId])
+  @@map("meal_box_items")
+}
+
+model MealBoxOption {
+  id         String           @id @default(uuid()) @db.Uuid
+  mealBoxId  String           @db.Uuid
+  label      String
+  type       MealBoxOptionType @default(SINGLE)
+  minSelect  Int              @default(1)
+  maxSelect  Int              @default(1)
+  isRequired Boolean          @default(true)
+  helpText   String?
+  sortOrder  Int              @default(0)
+
+  mealBox MealBox              @relation(fields: [mealBoxId], references: [id], onDelete: Cascade)
+  values  MealBoxOptionValue[]
+
+  @@index([mealBoxId])
+  @@map("meal_box_options")
+}
+
+model MealBoxOptionValue {
+  id         String  @id @default(uuid()) @db.Uuid
+  optionId   String  @db.Uuid
+  productId  String? @db.Uuid
+  label      String
+  priceDelta Decimal @default(0) @db.Decimal(10, 2)
+  isDefault  Boolean @default(false)
+  sortOrder  Int     @default(0)
+
+  option  MealBoxOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  product Product?      @relation(fields: [productId], references: [id])
+
+  @@index([optionId])
+  @@map("meal_box_option_values")
+}
+
+model Customer {
+  id        String   @id @default(uuid()) @db.Uuid
+  shopId    String   @db.Uuid
+  userId    String?  @unique @db.Uuid
+  name      String
+  phone     String
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shop         Shop               @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  user         User?              @relation(fields: [userId], references: [id])
+  addresses    CustomerAddress[]
+  orders       Order[]
+  subscriptions Subscription[]
+  bulkEnquiries BulkOrderEnquiry[]
+
+  @@unique([shopId, phone])
+  @@index([shopId])
+  @@map("customers")
+}
+
+model CustomerAddress {
+  id           String   @id @default(uuid()) @db.Uuid
+  customerId   String   @db.Uuid
+  label        String   @default("Home")
+  receiverName String
+  phone        String
+  line1        String
+  line2        String?
+  city         String
+  pincode      String
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@map("customer_addresses")
+}
+
+model Coupon {
+  id            String     @id @default(uuid()) @db.Uuid
+  shopId        String     @db.Uuid
+  code          String
+  description   String?
+  type          CouponType @default(PERCENT)
+  value         Decimal    @db.Decimal(10, 2)
+  minOrderValue Decimal    @default(0) @db.Decimal(10, 2)
+  maxDiscount   Decimal?   @db.Decimal(10, 2)
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@unique([shopId, code])
+  @@map("coupons")
+}
+
+model Order {
+  id                 String        @id @default(uuid()) @db.Uuid
+  orderNumber        String        @unique
+  shopId             String        @db.Uuid
+  customerId         String        @db.Uuid
+  source             OrderSource   @default(NORMAL)
+  status             OrderStatus   @default(NEW)
+  subtotal           Decimal       @db.Decimal(10, 2)
+  discount           Decimal       @default(0) @db.Decimal(10, 2)
+  deliveryFee        Decimal       @default(0) @db.Decimal(10, 2)
+  total              Decimal       @db.Decimal(10, 2)
+  couponCode         String?
+  paymentMethod      PaymentMethod @default(CASH_ON_DELIVERY)
+  paymentStatus      PaymentStatus @default(PENDING)
+  deliveryName       String
+  deliveryPhone      String
+  deliveryLine1      String
+  deliveryLine2      String?
+  deliveryCity       String
+  deliveryPincode    String
+  deliveryInstructions String?
+  placedAt           DateTime      @default(now())
+  scheduledFor       DateTime?
+  deliveredAt        DateTime?
+  riderId            String?       @db.Uuid
+  subscriptionId     String?       @db.Uuid
+  bulkOrderId        String?       @unique @db.Uuid
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  shop         Shop                @relation(fields: [shopId], references: [id])
+  customer     Customer            @relation(fields: [customerId], references: [id])
+  rider        Rider?              @relation(fields: [riderId], references: [id])
+  subscription Subscription?       @relation(fields: [subscriptionId], references: [id])
+  bulkOrder    BulkOrder?          @relation(fields: [bulkOrderId], references: [id])
+  items        OrderItem[]
+  history      OrderStatusHistory[]
+  assignment   DeliveryAssignment?
+  subscriptionOrder SubscriptionOrder?
+
+  @@index([shopId, status])
+  @@index([shopId, placedAt])
+  @@index([customerId])
+  @@index([subscriptionId])
+  @@index([scheduledFor])
+  @@map("orders")
+}
+
+model OrderItem {
+  id                   String    @id @default(uuid()) @db.Uuid
+  orderId              String    @db.Uuid
+  itemType             ItemType  @default(PRODUCT)
+  productId            String?   @db.Uuid
+  mealBoxId            String?   @db.Uuid
+  name                 String
+  description          String?
+  unitPrice            Decimal   @db.Decimal(10, 2)
+  quantity             Int       @default(1)
+  lineTotal            Decimal   @db.Decimal(10, 2)
+  customizationSummary String?
+  notes                String?
+
+  order         Order                   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product       Product?                @relation(fields: [productId], references: [id])
+  mealBox       MealBox?                @relation(fields: [mealBoxId], references: [id])
+  customizations OrderItemCustomization[]
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model OrderItemCustomization {
+  id          String  @id @default(uuid()) @db.Uuid
+  orderItemId String  @db.Uuid
+  groupLabel  String
+  optionLabel String
+  valueLabel  String
+  quantity    Int     @default(1)
+  priceDelta  Decimal @default(0) @db.Decimal(10, 2)
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([orderItemId])
+  @@map("order_item_customizations")
+}
+
+model OrderStatusHistory {
+  id           String      @id @default(uuid()) @db.Uuid
+  orderId      String      @db.Uuid
+  status       OrderStatus
+  actorUserId  String?     @db.Uuid
+  actorRole    UserRole?
+  actorName    String?
+  note         String?
+  createdAt    DateTime    @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  actor User? @relation(fields: [actorUserId], references: [id])
+
+  @@index([orderId, createdAt])
+  @@map("order_status_history")
+}
+
+model TiffinPlan {
+  id             String   @id @default(uuid()) @db.Uuid
+  shopId         String   @db.Uuid
+  name           String
+  slug           String
+  planType       PlanType
+  durationDays   Int
+  price          Decimal  @db.Decimal(10, 2)
+  description    String?
+  mealType       String   @default("Veg lunch")
+  deliveryWindow String   @default("12:00 PM - 1:30 PM")
+  mealsPerDay    Int      @default(1)
+  savingsNote    String?
+  imageUrl       String?
+  isAvailable    Boolean  @default(true)
+  isFeatured     Boolean  @default(false)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  shop          Shop                  @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  items         TiffinPlanItem[]
+  subscriptions Subscription[]
+
+  @@unique([shopId, slug])
+  @@map("tiffin_plans")
+}
+
+model TiffinPlanItem {
+  id        String  @id @default(uuid()) @db.Uuid
+  planId    String  @db.Uuid
+  productId String? @db.Uuid
+  label     String
+  quantity  Int     @default(1)
+
+  plan    TiffinPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  product Product?   @relation(fields: [productId], references: [id])
+
+  @@index([planId])
+  @@map("tiffin_plan_items")
+}
+
+model Subscription {
+  id             String             @id @default(uuid()) @db.Uuid
+  subscriptionNumber String          @unique
+  shopId         String             @db.Uuid
+  customerId     String             @db.Uuid
+  planId         String             @db.Uuid
+  status         SubscriptionStatus @default(ACTIVE)
+  startDate      DateTime           @db.Date
+  endDate        DateTime           @db.Date
+  deliverySlot   String
+  mealPreference String?
+  deliveryName   String
+  deliveryPhone  String
+  deliveryLine1  String
+  deliveryLine2  String?
+  deliveryCity   String
+  deliveryPincode String
+  totalPrice     Decimal            @db.Decimal(10, 2)
+  paymentStatus  PaymentStatus      @default(PENDING)
+  pausedAt       DateTime?
+  cancelledAt    DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  shop      Shop                  @relation(fields: [shopId], references: [id])
+  customer  Customer              @relation(fields: [customerId], references: [id])
+  plan      TiffinPlan            @relation(fields: [planId], references: [id])
+  schedules SubscriptionSchedule[]
+  skips     SubscriptionSkip[]
+  orders    Order[]
+  subscriptionOrders SubscriptionOrder[]
+
+  @@index([shopId, status])
+  @@index([customerId])
+  @@map("subscriptions")
+}
+
+model SubscriptionSchedule {
+  id             String @id @default(uuid()) @db.Uuid
+  subscriptionId String @db.Uuid
+  weekday        Int
+  deliveryTime   String
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, weekday])
+  @@map("subscription_schedules")
+}
+
+model SubscriptionSkip {
+  id             String   @id @default(uuid()) @db.Uuid
+  subscriptionId String   @db.Uuid
+  skipDate       DateTime @db.Date
+  reason         String?
+  createdAt      DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, skipDate])
+  @@map("subscription_skips")
+}
+
+model SubscriptionOrder {
+  id             String   @id @default(uuid()) @db.Uuid
+  subscriptionId String   @db.Uuid
+  orderId        String   @unique @db.Uuid
+  deliveryDate   DateTime @db.Date
+  createdAt      DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  order        Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([subscriptionId, deliveryDate])
+  @@index([deliveryDate])
+  @@map("subscription_orders")
+}
+
+model BulkOrderPackage {
+  id              String   @id @default(uuid()) @db.Uuid
+  shopId          String   @db.Uuid
+  name            String
+  slug            String
+  description     String?
+  targetSegments  String?
+  includes        String?
+  imageUrl        String?
+  minQuantity     Int      @default(20)
+  perPersonPrice  Decimal  @db.Decimal(10, 2)
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  shop      Shop               @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  enquiries BulkOrderEnquiry[]
+
+  @@unique([shopId, slug])
+  @@map("bulk_order_packages")
+}
+
+model BulkOrderEnquiry {
+  id                 String        @id @default(uuid()) @db.Uuid
+  enquiryNumber      String        @unique
+  shopId             String        @db.Uuid
+  customerId         String?       @db.Uuid
+  packageId          String?       @db.Uuid
+  organizationName   String
+  contactPerson      String
+  phone              String
+  email              String
+  organizationType   String
+  deliveryAddress    String
+  requiredDate       DateTime
+  preferredTime      String
+  estimatedQuantity  Int
+  packageName        String?
+  dietaryRequirements String?
+  notes              String?
+  status             EnquiryStatus @default(ENQUIRY_RECEIVED)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  shop        Shop                 @relation(fields: [shopId], references: [id])
+  customer    Customer?            @relation(fields: [customerId], references: [id])
+  package     BulkOrderPackage?    @relation(fields: [packageId], references: [id])
+  quotations  BulkOrderQuotation[]
+  statusHistory BulkOrderStatusHistory[]
+  bulkOrder   BulkOrder?
+
+  @@index([shopId, status])
+  @@map("bulk_order_enquiries")
+}
+
+model BulkOrderQuotation {
+  id              String          @id @default(uuid()) @db.Uuid
+  enquiryId       String          @db.Uuid
+  quotationNumber String          @unique
+  packageName     String
+  quantity        Int
+  perPersonPrice  Decimal         @db.Decimal(10, 2)
+  additionalCharges Decimal       @default(0) @db.Decimal(10, 2)
+  discount        Decimal         @default(0) @db.Decimal(10, 2)
+  total           Decimal         @db.Decimal(10, 2)
+  terms           String?
+  validUntil      DateTime?
+  status          QuotationStatus @default(SENT)
+  createdByUserId String?         @db.Uuid
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  enquiry   BulkOrderEnquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  createdBy User?            @relation(fields: [createdByUserId], references: [id])
+  bulkOrder BulkOrder?
+
+  @@index([enquiryId])
+  @@map("bulk_order_quotations")
+}
+
+model BulkOrder {
+  id                 String          @id @default(uuid()) @db.Uuid
+  bulkOrderNumber    String          @unique
+  shopId             String          @db.Uuid
+  enquiryId          String          @unique @db.Uuid
+  quotationId        String          @unique @db.Uuid
+  organizationName   String
+  contactPerson      String
+  phone              String
+  email              String
+  deliveryAddress    String
+  deliveryDate       DateTime
+  deliveryTime       String
+  quantity           Int
+  packageName        String
+  perPersonPrice     Decimal         @db.Decimal(10, 2)
+  additionalCharges  Decimal         @default(0) @db.Decimal(10, 2)
+  discount           Decimal         @default(0) @db.Decimal(10, 2)
+  total              Decimal         @db.Decimal(10, 2)
+  terms              String?
+  dietaryRequirements String?
+  notes              String?
+  status             BulkOrderStatus @default(CONFIRMED)
+  dispatchedAt       DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  shop       Shop                  @relation(fields: [shopId], references: [id])
+  enquiry    BulkOrderEnquiry      @relation(fields: [enquiryId], references: [id])
+  quotation  BulkOrderQuotation    @relation(fields: [quotationId], references: [id])
+  items      BulkOrderItem[]
+  history    BulkOrderStatusHistory[]
+  order      Order?
+  assignments DeliveryAssignment[]
+
+  @@index([shopId, status])
+  @@index([deliveryDate])
+  @@map("bulk_orders")
+}
+
+model BulkOrderItem {
+  id          String  @id @default(uuid()) @db.Uuid
+  bulkOrderId String  @db.Uuid
+  label       String
+  quantity    Int
+  unitPrice   Decimal? @db.Decimal(10, 2)
+  notes       String?
+
+  bulkOrder BulkOrder @relation(fields: [bulkOrderId], references: [id], onDelete: Cascade)
+
+  @@index([bulkOrderId])
+  @@map("bulk_order_items")
+}
+
+model BulkOrderStatusHistory {
+  id          String          @id @default(uuid()) @db.Uuid
+  bulkOrderId String?         @db.Uuid
+  enquiryId   String?         @db.Uuid
+  status      String
+  actorUserId String?         @db.Uuid
+  actorRole   UserRole?
+  actorName   String?
+  note        String?
+  createdAt   DateTime        @default(now())
+
+  bulkOrder BulkOrder?        @relation(fields: [bulkOrderId], references: [id], onDelete: Cascade)
+  enquiry   BulkOrderEnquiry? @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  actor     User?             @relation(fields: [actorUserId], references: [id])
+
+  @@index([bulkOrderId])
+  @@map("bulk_order_status_history")
+}
+
+model Rider {
+  id          String   @id @default(uuid()) @db.Uuid
+  shopId      String   @db.Uuid
+  userId      String?  @unique @db.Uuid
+  name        String
+  phone       String
+  vehicleType String   @default("Bike")
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  shop        Shop                 @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  user        User?                @relation(fields: [userId], references: [id])
+  orders      Order[]
+  assignments DeliveryAssignment[]
+
+  @@index([shopId])
+  @@map("riders")
+}
+
+model DeliveryAssignment {
+  id              String         @id @default(uuid()) @db.Uuid
+  shopId          String         @db.Uuid
+  orderId         String?        @unique @db.Uuid
+  bulkOrderId     String?        @db.Uuid
+  riderId         String         @db.Uuid
+  status          DeliveryStatus @default(ASSIGNED)
+  otpCode         String
+  otpVerified     Boolean        @default(false)
+  assignedAt      DateTime       @default(now())
+  acceptedAt      DateTime?
+  pickedUpAt      DateTime?
+  outForDeliveryAt DateTime?
+  deliveredAt     DateTime?
+  failureReason   String?
+  updatedAt       DateTime       @updatedAt
+
+  order     Order?     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  bulkOrder BulkOrder? @relation(fields: [bulkOrderId], references: [id], onDelete: Cascade)
+  rider     Rider      @relation(fields: [riderId], references: [id])
+
+  @@index([riderId, status])
+  @@map("delivery_assignments")
+}
+
+model PlatformSetting {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  value     String
+  label     String?
+  updatedAt DateTime @updatedAt
+
+  @@map("platform_settings")
+}
+
+model ShopSetting {
+  id                 String   @id @default(uuid()) @db.Uuid
+  shopId             String   @unique @db.Uuid
+  commissionRate     Decimal? @db.Decimal(5, 2)
+  deliveryFee        Decimal  @default(30) @db.Decimal(10, 2)
+  freeDeliveryAbove  Decimal  @default(499) @db.Decimal(10, 2)
+  minOrderValue      Decimal  @default(99) @db.Decimal(10, 2)
+  openingTime        String   @default("10:00")
+  closingTime        String   @default("22:00")
+  isAcceptingOrders  Boolean  @default(true)
+  updatedAt          DateTime @updatedAt
+
+  shop Shop @relation(fields: [shopId], references: [id], onDelete: Cascade)
+
+  @@map("shop_settings")
+}

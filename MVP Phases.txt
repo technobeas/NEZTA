@@ -1,0 +1,1485 @@
+# MASTER DEVELOPMENT PROMPT — NEZTA CLIENT DEMO MVP
+
+## 1. PROJECT OBJECTIVE
+
+Act as a senior full-stack JavaScript developer, product designer, UI/UX specialist and software architect.
+
+Build a professional, interactive MVP of **NEZTA**, a multi-shop food ordering and delivery platform.
+
+This version is specifically intended to be demonstrated to a prospective client so they can understand the product, experience its workflows and decide whether they want to proceed with full-scale development.
+
+**This is a sales demonstration MVP, not the final production platform.**
+
+The application must demonstrate the core business concept through realistic, working interactions.
+
+Do not attempt to implement every feature from the full NEZTA roadmap.
+
+Prioritize:
+- Visual quality.
+- Business workflow demonstration.
+- Easy navigation.
+- Realistic sample data.
+- Functional food ordering.
+- Customizable meal boxes.
+- Tiffin subscriptions.
+- Bulk and corporate orders.
+- Shop operations.
+- Kitchen management.
+- Delivery management.
+- Platform-level overview.
+
+The final experience should make the client feel that they are looking at an actual software product that can be developed into a complete commercial platform.
+
+---
+
+## 2. TECHNOLOGY STACK
+
+### Frontend
+- React with JavaScript and JSX.
+- Vite.
+- Tailwind CSS.
+- React Router DOM.
+- Lucide React.
+- TanStack Query.
+- Zustand.
+- React Hook Form.
+- Zod.
+- Recharts.
+- Framer Motion.
+
+### Backend
+- Cloudflare Workers.
+- Hono.
+- JavaScript ES Modules.
+- REST API.
+- Neon PostgreSQL.
+- Prisma with a verified Cloudflare Workers-compatible configuration.
+- Zod validation.
+
+### Infrastructure
+- Frontend: Cloudflare Pages.
+- Backend: Cloudflare Workers.
+- Database: Neon PostgreSQL.
+- Images: Cloudinary.
+
+Do not introduce Redis, queues, payment gateway integration, WhatsApp integration or Google Maps unless a specific MVP feature genuinely requires them.
+
+Keep the architecture compatible with the planned full NEZTA platform.
+
+Use exactly two primary application directories:
+
+- `client/`
+- `server/`
+
+Do not use TypeScript or TSX.
+
+---
+
+## 3. MVP SCOPE
+
+Build seven connected experiences:
+
+1. Customer Marketplace.
+2. Shop Admin Dashboard.
+3. Kitchen Management.
+4. Rider Delivery Interface.
+5. Platform Admin Dashboard.
+6. Tiffin Subscription Management.
+7. Bulk and Corporate Ordering.
+
+Meal boxes are an important part of the customer marketplace and must support customization.
+
+All experiences should work with the same sample business data and database.
+
+For the demonstration, NEZTA is the first shop on the platform.
+
+Use one active shop initially, but structure the database and API so additional shops can be introduced later.
+
+Do not build a complicated multi-tenant onboarding system in the MVP.
+
+However, every shop-owned record should have a `shop_id` where applicable. Avoid architectural decisions that would make future tenant isolation difficult.
+
+---
+
+## 4. DEMO LOGIN SYSTEM
+
+Create a simple demonstration login experience.
+
+Provide a demo role selector or demo login accounts.
+
+| Role | Email |
+|---|---|
+| Platform Admin | admin@nezta.demo |
+| Shop Owner | owner@nezta.demo |
+| Kitchen Staff | kitchen@nezta.demo |
+| Delivery Rider | rider@nezta.demo |
+| Customer | customer@nezta.demo |
+
+Use clearly labeled development/demo credentials.
+
+The user should be able to switch between roles easily during a client presentation.
+
+Implement basic backend authentication and role checks where practical.
+
+Do not present the demo login implementation as production-grade authentication.
+
+Include a clearly visible Demo Mode indicator.
+
+---
+
+## 5. CUSTOMER MARKETPLACE
+
+Create a beautiful food-ordering website.
+
+### Homepage
+
+Include:
+- NEZTA logo and navigation.
+- Attractive hero section.
+- Food photography.
+- Featured food categories.
+- Popular meals.
+- Today's menu.
+- Special meal boxes.
+- Tiffin subscription plans.
+- Corporate and bulk ordering promotion.
+- Special offers.
+- About NEZTA.
+- Contact section.
+- Footer.
+
+Provide prominent navigation links for:
+
+- Food Menu.
+- Meal Boxes.
+- Tiffin Plans.
+- Bulk Orders.
+
+### Food catalogue
+
+Display these sample products:
+
+| Product | Sample Price |
+|---|---:|
+| Special Vegetable Masala | ₹120 |
+| Special Dal | ₹100 |
+| Chapati | ₹10 |
+| Rice | ₹60 |
+| Salad | ₹40 |
+| Achar | ₹20 |
+| Farsan | ₹50 |
+| Gulab Jamun | ₹60 |
+
+All prices are illustrative demo data and must be editable from the shop dashboard.
+
+Each product should have:
+- Image.
+- Name.
+- Description.
+- Price.
+- Availability.
+- Category.
+- Quantity selection.
+- Add to cart.
+
+### Shop page
+
+Include:
+- Shop banner.
+- Shop logo.
+- Opening status.
+- Menu categories.
+- Food cards.
+- Delivery information.
+- Ratings using clearly labeled sample data.
+- Featured meal boxes.
+- Available tiffin plans.
+- Bulk order enquiry option.
+
+### Cart
+
+Implement:
+- Add products.
+- Remove products.
+- Change quantities.
+- Calculate subtotal.
+- Apply a sample coupon.
+- Calculate delivery charge.
+- Display total.
+
+Prevent unsupported multi-shop carts. An order must belong to one shop.
+
+---
+
+## 6. MEAL BOXES — CUSTOMIZABLE MEALS
+
+Meal boxes are a core NEZTA selling feature.
+
+Build a dedicated Meal Boxes section.
+
+### Customer experience
+
+Display attractive meal-box cards with:
+- Meal box name.
+- Food photography.
+- Description.
+- Included food items.
+- Base price.
+- Available customization options.
+- Servings or portion size.
+- Availability.
+- Preparation or delivery estimate.
+
+Create sample meal boxes such as:
+
+1. Regular Veg Meal Box.
+2. Special Veg Meal Box.
+3. Mini Lunch Box.
+4. Premium Family Meal Box.
+5. Office Lunch Box.
+
+These are illustrative demo products and must be editable.
+
+### Meal box customization
+
+Allow customers to customize selected meal boxes.
+
+Example:
+
+**Special Veg Meal Box**
+
+- Vegetable Masala: Choose 1.
+- Dal: Choose 1.
+- Chapati: Choose 2, 3 or 4.
+- Rice: Regular or extra.
+- Salad: Include or exclude.
+- Achar: Include or exclude.
+- Dessert: Optional add-on.
+
+Customization rules:
+- Define required and optional choices.
+- Support minimum and maximum selection limits.
+- Display additional charges.
+- Update the price dynamically.
+- Show the final selection before adding to cart.
+- Save selected customizations with the cart and order.
+- Display customizations in the shop and kitchen interfaces.
+
+### Shop administration
+
+Allow the shop owner to:
+- Create meal boxes.
+- Edit meal box details.
+- Set base price.
+- Add included products.
+- Configure optional add-ons.
+- Configure required selections.
+- Set extra charges.
+- Enable or disable meal boxes.
+- Manage availability.
+
+Do not hardcode meal-box configuration in React components.
+
+### Database
+
+Include appropriate entities for:
+- `meal_boxes`
+- `meal_box_items`
+- `meal_box_options`
+- `meal_box_option_values`
+- `order_item_customizations`
+
+Use a practical schema and avoid unnecessary complexity.
+
+---
+
+## 7. TIFFIN SUBSCRIPTIONS — DAILY, WEEKLY AND MONTHLY MEAL PLANS
+
+Build a dedicated Tiffin Subscription section.
+
+This feature should demonstrate recurring meal services for customers who need regular food delivery.
+
+### Customer experience
+
+Display subscription plans in attractive pricing cards.
+
+Support:
+
+1. Daily Tiffin Plan.
+2. Weekly Tiffin Plan.
+3. Monthly Tiffin Plan.
+
+Create illustrative sample plans:
+
+| Plan | Duration | Sample Price |
+|---|---|---:|
+| Daily Tiffin | 1 day | ₹120 |
+| Weekly Tiffin | 7 days | ₹750 |
+| Monthly Tiffin | 30 days | ₹2,800 |
+
+All prices are placeholders for demonstration and must be editable.
+
+Each plan should show:
+- Plan name.
+- Meal description.
+- Included food items.
+- Meal type.
+- Delivery schedule.
+- Duration.
+- Price.
+- Savings compared with individual orders, if applicable.
+- Customization options.
+
+### Subscription purchase flow
+
+Allow customers to:
+
+1. Browse available tiffin plans.
+2. Select a plan.
+3. Choose a start date.
+4. Select delivery address.
+5. Select a meal preference where supported.
+6. Select a delivery time slot.
+7. Review the plan.
+8. Confirm the demo subscription.
+
+Show a subscription confirmation page with:
+- Subscription ID.
+- Selected plan.
+- Start date.
+- End date.
+- Delivery schedule.
+- Total demo price.
+- Subscription status.
+
+### Subscription management
+
+Create a customer subscription dashboard.
+
+Show:
+- Active subscriptions.
+- Upcoming deliveries.
+- Completed deliveries.
+- Subscription start and end dates.
+- Selected meal plan.
+- Subscription history.
+
+Allow the customer to:
+- View subscription details.
+- Pause subscription.
+- Resume subscription.
+- Skip a delivery date.
+- Request cancellation.
+
+For the MVP, implement simple pause, resume and skip-date functionality.
+
+Validate that skipped dates belong to the subscription period.
+
+### Automatic order generation
+
+Implement a simplified recurring order generator.
+
+For the demo:
+- Generate scheduled orders for active subscriptions.
+- Prevent duplicate order generation for the same subscription and delivery date.
+- Respect paused subscriptions.
+- Respect skipped dates.
+- Avoid generating orders outside the subscription period.
+- Show generated orders in Shop Admin and Kitchen dashboards.
+
+A scheduled endpoint or a manual **Generate Today's Subscription Orders** action can be used for the demonstration.
+
+The generation process must be idempotent.
+
+Do not integrate automatic payment collection.
+
+Clearly label subscriptions as demo subscriptions with simulated payment status.
+
+### Shop administration
+
+Allow the shop owner to:
+- Create tiffin plans.
+- Edit plan descriptions.
+- Configure daily, weekly and monthly durations.
+- Set prices.
+- Configure included menu items.
+- Configure meal schedules.
+- Enable or disable plans.
+- View subscribers.
+- View upcoming deliveries.
+- Pause or cancel a subscription with appropriate authorization.
+- View subscription-generated orders.
+
+### Database
+
+Include:
+- `tiffin_plans`
+- `tiffin_plan_items`
+- `subscriptions`
+- `subscription_schedules`
+- `subscription_skips`
+- `subscription_orders`
+
+Maintain a relationship between subscriptions and generated orders.
+
+---
+
+## 8. BULK ORDERS — CORPORATE, INSTITUTIONAL AND EVENT ORDERS
+
+Build a dedicated Bulk Orders section.
+
+This feature should demonstrate how NEZTA can serve customers who require meals in larger quantities or on scheduled dates.
+
+### Target customers
+
+Support these bulk-order categories:
+
+- Offices.
+- Corporate companies.
+- Schools.
+- Colleges.
+- Hospitals.
+- Events.
+- Family functions.
+- Meetings.
+- Other institutional customers.
+
+### Customer-facing bulk order page
+
+Create a professional landing page with:
+- Bulk ordering introduction.
+- Target customer categories.
+- Available meal packages.
+- Sample pricing indicators.
+- Minimum order quantities.
+- Custom package options.
+- Delivery information.
+- Request a quotation button.
+
+### Bulk order packages
+
+Create illustrative sample packages:
+
+| Package | Example Use |
+|---|---|
+| Office Lunch Package | Employee lunch |
+| School Meal Package | Student meals |
+| Hospital Meal Package | Patient and staff meals |
+| Corporate Event Package | Meetings and events |
+| Family Gathering Package | Functions and celebrations |
+
+All packages and prices must be editable.
+
+### Bulk order enquiry form
+
+Collect:
+
+- Organization or customer name.
+- Contact person.
+- Phone number.
+- Email address.
+- Organization type.
+- Delivery address.
+- Required delivery date.
+- Preferred delivery time.
+- Estimated quantity.
+- Meal package preference.
+- Dietary or customization requirements.
+- Additional notes.
+
+Validate the form on both frontend and backend.
+
+After submission:
+- Generate a bulk enquiry ID.
+- Save the enquiry in PostgreSQL.
+- Show a confirmation page.
+- Display the enquiry in Shop Admin.
+
+### Shop bulk order management
+
+Create a Bulk Orders management screen.
+
+Allow shop staff to:
+- View enquiries.
+- Search and filter enquiries.
+- Open enquiry details.
+- Contact the customer using displayed contact details.
+- Prepare a quotation.
+- Enter proposed package.
+- Enter quantity.
+- Enter per-person price.
+- Enter additional charges.
+- Enter discount.
+- Calculate estimated total.
+- Submit the quotation.
+- Accept or reject the enquiry.
+- Convert an accepted quotation into a bulk order.
+
+### Bulk order lifecycle
+
+Use a simple workflow:
+
+`ENQUIRY_RECEIVED → QUOTATION_SENT → ACCEPTED → CONFIRMED → PREPARING → READY → DISPATCHED → COMPLETED`
+
+Also support:
+
+- REJECTED.
+- CANCELLED.
+
+Record status history and timestamps.
+
+### Bulk order operations
+
+For a confirmed bulk order, show:
+- Customer or organization.
+- Package.
+- Quantity.
+- Delivery date.
+- Delivery address.
+- Food requirements.
+- Total quoted amount.
+- Order status.
+- Preparation notes.
+
+Show confirmed bulk orders in the kitchen production dashboard.
+
+Allow the kitchen to see aggregate quantities for scheduled bulk orders.
+
+For the MVP, bulk delivery can be managed through the existing rider workflow or marked as dispatched by shop staff.
+
+Do not build advanced contract management, recurring corporate billing or credit facilities.
+
+### Database
+
+Include:
+- `bulk_order_enquiries`
+- `bulk_order_quotations`
+- `bulk_orders`
+- `bulk_order_items`
+- `bulk_order_status_history`
+
+Keep the enquiry, quotation and confirmed order relationships clear.
+
+---
+
+## 9. CUSTOMER CHECKOUT AND ORDER CONFIRMATION
+
+Implement a demo checkout flow:
+
+- Customer name.
+- Phone number.
+- Delivery address.
+- Delivery instructions.
+- Payment method selection.
+- Cash on Delivery as the working demo payment method.
+- Place order.
+
+Support normal food orders and customized meal boxes.
+
+For subscription purchases, use the subscription checkout flow.
+
+For bulk orders, use the quotation and enquiry flow.
+
+Do not integrate real payment collection.
+
+Clearly label payment as a simulated demo transaction.
+
+After a normal order is placed:
+- Generate a unique order number.
+- Show the order summary.
+- Show the estimated delivery time.
+- Show the order status.
+- Provide a button to track the order.
+
+Persist the order in PostgreSQL.
+
+---
+
+## 10. CUSTOMER ORDER TRACKING
+
+Build an attractive order-tracking page.
+
+Show the normal order lifecycle:
+
+1. Order Placed.
+2. Order Confirmed.
+3. Preparing.
+4. Ready for Pickup.
+5. Rider Assigned.
+6. Picked Up.
+7. Out for Delivery.
+8. Delivered.
+
+Use a visual progress tracker.
+
+The status must update when the shop, kitchen or rider changes the order.
+
+Use API polling or suitable lightweight updates for the demo.
+
+Do not display fake real-time GPS tracking.
+
+Use a clearly labeled delivery status panel if needed.
+
+For subscription orders, show the individual delivery date and order status within the customer's subscription dashboard.
+
+For bulk orders, show quotation and order status separately.
+
+---
+
+## 11. SHOP ADMIN DASHBOARD
+
+Create a professional shop operations dashboard.
+
+### Overview
+
+Display:
+- Today's orders.
+- Pending orders.
+- Preparing orders.
+- Completed orders.
+- Today's sales.
+- Total customers.
+- Active tiffin subscriptions.
+- Upcoming subscription deliveries.
+- Pending bulk enquiries.
+- Confirmed bulk orders.
+- Popular products.
+- Recent orders.
+
+Use sample analytics that are clearly identified as demo data.
+
+### Order Management
+
+Create a working order table.
+
+Columns:
+- Order ID.
+- Customer.
+- Items.
+- Order total.
+- Payment method.
+- Order status.
+- Order time.
+- Actions.
+
+Features:
+- Search.
+- Filter by status.
+- View order details.
+- Accept order.
+- Reject order.
+- Update preparation status.
+- Mark ready for pickup.
+
+All status updates must be saved in PostgreSQL.
+
+Show meal-box customization details in the order view.
+
+### Menu Management
+
+Allow:
+- View products.
+- Add product.
+- Edit product.
+- Change price.
+- Change availability.
+- Change description.
+- Select category.
+
+Do not hardcode the menu in React components.
+
+### Meal Box Management
+
+Allow shop owners to manage:
+- Meal boxes.
+- Included products.
+- Customization groups.
+- Add-ons.
+- Prices.
+- Availability.
+
+### Tiffin Subscription Management
+
+Allow shop owners to:
+- Create and edit tiffin plans.
+- View active subscribers.
+- View upcoming deliveries.
+- Pause or cancel demo subscriptions.
+- Generate scheduled orders.
+- View subscription history.
+
+### Bulk Order Management
+
+Allow shop owners to:
+- View bulk enquiries.
+- Create quotations.
+- Update enquiry status.
+- Confirm bulk orders.
+- View scheduled bulk orders.
+- Track bulk order preparation and dispatch.
+
+### Customer Management
+
+Show:
+- Customer name.
+- Phone number.
+- Total orders.
+- Total spending.
+- Active subscriptions.
+- Recent order.
+
+### Financial Overview
+
+Display:
+- Gross sales.
+- Illustrative platform commission.
+- Estimated shop earnings.
+- Pending settlements.
+- Illustrative subscription sales.
+- Illustrative bulk order sales.
+
+Use a configurable demo commission rate of 10%.
+
+Clearly mark financial figures as illustrative estimates, not actual financial settlements.
+
+---
+
+## 12. KITCHEN MANAGEMENT
+
+Build a dedicated kitchen interface.
+
+Keep it simple, visual and touch-friendly.
+
+### Kitchen dashboard
+
+Display orders grouped into:
+
+- New.
+- Preparing.
+- Ready.
+
+Include order types:
+- Regular orders.
+- Meal-box orders.
+- Subscription-generated orders.
+- Bulk orders.
+
+Each order card should show:
+- Order number.
+- Order type.
+- Order time or scheduled delivery date.
+- Food items.
+- Quantities.
+- Meal-box customizations.
+- Special instructions.
+- Preparation status.
+
+### Kitchen actions
+
+Allow staff to:
+- Start preparation.
+- Mark items prepared where practical.
+- Mark the complete order ready for pickup.
+
+For bulk orders:
+- Show total production quantity.
+- Show the delivery deadline.
+- Show package details.
+- Show special dietary instructions.
+
+For tiffin orders:
+- Group scheduled deliveries by delivery date.
+- Show the subscription plan.
+- Show customer and quantity information.
+
+Changes must be reflected in the shop dashboard and relevant customer tracking pages.
+
+Use clear status colors and large touch-friendly controls.
+
+---
+
+## 13. RIDER DELIVERY INTERFACE
+
+Create a mobile-first rider dashboard.
+
+### Rider home
+
+Display:
+- Assigned orders.
+- Current delivery.
+- Completed deliveries.
+- Today's delivery count.
+
+### Delivery card
+
+Display:
+- Order ID.
+- Customer name.
+- Phone number.
+- Address.
+- Order total.
+- Payment method.
+- Delivery instructions.
+- Order type.
+
+Allow the rider to:
+- Accept assigned order.
+- Mark picked up.
+- Mark out for delivery.
+- Mark delivered.
+- Report delivery failed.
+
+For delivery confirmation, implement a simple demo OTP or confirmation code.
+
+Clearly label the rider experience as a demonstration interface.
+
+Do not implement background location tracking.
+
+Bulk deliveries may be assigned to a rider or marked as dispatched by shop staff for the MVP.
+
+---
+
+## 14. PLATFORM ADMIN DASHBOARD
+
+Build a premium marketplace administration dashboard.
+
+### Overview
+
+Display:
+- Total shops.
+- Active shops.
+- Total customers.
+- Total orders.
+- Gross merchandise value.
+- Illustrative platform commission.
+- Active tiffin subscriptions.
+- Bulk order enquiries.
+- Confirmed bulk orders.
+- Shop performance.
+- Recent platform orders.
+
+Use realistic sample records, but label seeded analytics as demonstration data.
+
+### Shop management
+
+Show:
+- Shop name.
+- Owner.
+- Contact.
+- Registration date.
+- Status.
+- Total orders.
+- Revenue.
+
+Include a sample shop named NEZTA.
+
+Allow the platform admin to:
+- View shop details.
+- Activate or suspend demo shops.
+- View shop orders.
+- View shop performance.
+
+Do not build the complete shop application and approval workflow.
+
+### Commission overview
+
+Show:
+- Default commission rate.
+- Shop commission rate.
+- Estimated commission.
+- Estimated shop earnings.
+
+Allow changing the demo commission rate.
+
+New calculations should use the updated rate, while clearly distinguishing historical demo calculations from current estimates.
+
+Show subscription and bulk order activity separately in analytics.
+
+Do not treat enquiries or unconfirmed quotations as completed sales.
+
+---
+
+## 15. ORDER WORKFLOW
+
+For normal orders, implement:
+
+`NEW → CONFIRMED → PREPARING → READY_FOR_PICKUP → RIDER_ASSIGNED → PICKED_UP → OUT_FOR_DELIVERY → DELIVERED`
+
+Also support:
+- CANCELLED.
+- REJECTED.
+- DELIVERY_FAILED.
+
+Requirements:
+- Validate status transitions.
+- Save every status change.
+- Record the actor.
+- Record timestamp.
+- Display status history.
+- Update customer tracking.
+- Update shop order dashboard.
+- Update kitchen order dashboard.
+- Update rider assignment view.
+
+Do not allow invalid or unauthorized status changes.
+
+For the MVP, use simple manual rider assignment from the shop dashboard.
+
+Subscription-generated orders must use the same order workflow.
+
+Bulk orders must use their own enquiry and quotation workflow before conversion to confirmed production orders.
+
+---
+
+## 16. DATABASE DESIGN
+
+Create a practical MVP schema.
+
+### Identity
+- users
+- shops
+- shop_members
+
+### Catalogue
+- categories
+- products
+- meal_boxes
+- meal_box_items
+- meal_box_options
+- meal_box_option_values
+
+### Customers
+- customers
+- customer_addresses
+
+### Orders
+- orders
+- order_items
+- order_item_customizations
+- order_status_history
+
+### Tiffin subscriptions
+- tiffin_plans
+- tiffin_plan_items
+- subscriptions
+- subscription_schedules
+- subscription_skips
+- subscription_orders
+
+### Bulk orders
+- bulk_order_enquiries
+- bulk_order_quotations
+- bulk_orders
+- bulk_order_items
+- bulk_order_status_history
+
+### Delivery
+- riders
+- delivery_assignments
+
+### Configuration
+- platform_settings
+- shop_settings
+
+Include:
+- UUID primary keys.
+- Foreign keys.
+- Appropriate indexes.
+- created_at and updated_at.
+- PostgreSQL NUMERIC for money.
+- Shop ownership references.
+- Database migrations.
+- Seed data.
+
+Keep the schema clean and extensible.
+
+Important database rules:
+- Every shop-owned record must have the correct shop reference.
+- Every subscription-generated order must reference its source subscription.
+- Prevent duplicate subscription orders for the same scheduled delivery.
+- Preserve meal-box customization snapshots on placed orders.
+- Preserve quotation prices and terms when a bulk order is confirmed.
+- Use database transactions when converting quotations into orders.
+- Do not create all the tables required by the full roadmap.
+
+---
+
+## 17. UI/UX DESIGN DIRECTION
+
+The application must look like a premium commercial product.
+
+### Brand identity
+
+Use:
+- Deep forest green.
+- Warm ivory.
+- White.
+- Muted gold.
+- Natural food-inspired accents.
+
+Suggested palette:
+
+```css
+--brand-primary: #123B2B;
+--brand-secondary: #1C6547;
+--brand-accent: #D7B96E;
+--brand-background: #F8F7F2;
+--brand-surface: #FFFFFF;
+--brand-text: #202B24;
+--brand-muted: #7A847D;
+--brand-border: #E8E7DF;
+```
+
+### Design expectations
+
+- Professional typography.
+- Beautiful food photography.
+- Strong visual hierarchy.
+- Consistent spacing.
+- Premium cards.
+- Clean tables.
+- Attractive charts.
+- Subtle shadows.
+- Thoughtful empty states.
+- Responsive layouts.
+- Consistent buttons.
+- Professional forms.
+- Loading skeletons.
+- Toast notifications.
+- Confirmation dialogs.
+
+Create distinct visual sections for:
+- Food ordering.
+- Meal boxes.
+- Tiffin plans.
+- Bulk ordering.
+
+Do not make subscriptions or bulk orders look like ordinary product cards. Give them their own appropriate layouts and conversion flows.
+
+### Animations
+
+Use Framer Motion for:
+- Page transitions.
+- Sidebar transitions.
+- Modal animations.
+- Dropdowns.
+- Button interactions.
+- Small hover effects.
+
+Keep animations subtle and fast.
+
+Respect reduced-motion preferences.
+
+Do not make the interface look like a generic admin template.
+
+---
+
+## 18. PERFORMANCE REQUIREMENTS
+
+Even though this is an MVP, maintain good engineering practices.
+
+- Lazy-load major routes.
+- Optimize images.
+- Use responsive Cloudinary transformations.
+- Use server-side pagination for orders and products.
+- Add database indexes.
+- Avoid unnecessary React re-renders.
+- Use TanStack Query for API caching.
+- Debounce search.
+- Avoid fetching unnecessary fields.
+- Use reusable components.
+- Use centralized API configuration.
+- Keep bundle sizes reasonable.
+- Implement loading, error and empty states.
+
+Do not add complex caching infrastructure for the demo.
+
+---
+
+## 19. SECURITY AND DEMO LIMITATIONS
+
+Implement:
+- Backend role checks.
+- Input validation.
+- Tenant-aware database access.
+- Secure environment configuration.
+- Basic rate limiting where practical.
+- Safe error handling.
+- Secure Cloudinary upload flow.
+- Authorization for order updates.
+- Authorization for subscription changes.
+- Authorization for bulk quotation and order management.
+
+Important:
+- Use demo credentials only.
+- Do not process actual payments.
+- Do not use real customer data.
+- Do not collect unnecessary sensitive information.
+- Clearly mark all sample data.
+- Do not claim production readiness.
+- Do not claim actual GPS tracking.
+- Do not represent simulated financial values as actual payouts.
+- Do not represent demo subscription payments as real recurring payment collection.
+- Do not represent a bulk quotation as a confirmed order until accepted.
+
+Keep a clear separation between demonstration functionality and future production features.
+
+---
+
+## 20. PROJECT STRUCTURE
+
+Use this structure:
+
+```text
+nezta/
+│
+├── client/
+│   ├── public/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── layouts/
+│   │   ├── modules/
+│   │   │   ├── marketplace/
+│   │   │   ├── shop/
+│   │   │   ├── platform/
+│   │   │   ├── kitchen/
+│   │   │   ├── rider/
+│   │   │   ├── orders/
+│   │   │   ├── meal-boxes/
+│   │   │   ├── subscriptions/
+│   │   │   ├── bulk-orders/
+│   │   │   └── auth/
+│   │   ├── services/
+│   │   ├── stores/
+│   │   ├── hooks/
+│   │   ├── utils/
+│   │   ├── styles/
+│   │   └── main.jsx
+│   ├── package.json
+│   └── vite.config.js
+│
+├── server/
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   ├── migrations/
+│   │   └── seed.js
+│   ├── src/
+│   │   ├── index.js
+│   │   ├── app.js
+│   │   ├── config/
+│   │   ├── database/
+│   │   ├── middleware/
+│   │   ├── modules/
+│   │   │   ├── auth/
+│   │   │   ├── shops/
+│   │   │   ├── products/
+│   │   │   ├── meal-boxes/
+│   │   │   ├── orders/
+│   │   │   ├── customers/
+│   │   │   ├── subscriptions/
+│   │   │   ├── bulk-orders/
+│   │   │   ├── kitchen/
+│   │   │   ├── delivery/
+│   │   │   └── platform/
+│   │   ├── utils/
+│   │   └── constants/
+│   ├── package.json
+│   ├── wrangler.toml
+│   └── .dev.vars.example
+│
+├── package.json
+├── README.md
+└── .gitignore
+```
+
+---
+
+## 21. IMPLEMENTATION PHASES
+
+Build the MVP in the following order.
+
+### MVP Phase 00 — Foundation
+- Create project structure.
+- Initialize React and Vite.
+- Initialize Hono and Workers.
+- Configure Tailwind.
+- Configure Neon and Prisma.
+- Configure environment variables.
+- Set up API conventions.
+- Create initial design system.
+- Create routing and layouts.
+- Create health endpoint.
+
+### MVP Phase 01 — Demo Data and Authentication
+- Create database schema.
+- Create seed data.
+- Create demo users.
+- Implement role-based login.
+- Implement demo role switching.
+- Add sample shop and catalogue.
+- Add sample meal boxes.
+- Add sample tiffin plans.
+- Add sample bulk-order packages.
+
+### MVP Phase 02 — Customer Marketplace
+- Homepage.
+- Shop page.
+- Catalogue.
+- Meal Boxes section.
+- Meal box customization.
+- Tiffin Plans section.
+- Bulk Orders landing page.
+- Search and navigation.
+
+### MVP Phase 03 — Ordering and Checkout
+- Cart.
+- Address management.
+- Checkout.
+- Normal order creation.
+- Order confirmation.
+- Customer order tracking.
+
+### MVP Phase 04 — Shop Operations
+- Shop dashboard.
+- Order management.
+- Product management.
+- Meal box management.
+- Customer overview.
+- Financial estimate.
+
+### MVP Phase 05 — Tiffin Subscriptions
+- Tiffin plan management.
+- Subscription purchase.
+- Subscription confirmation.
+- Customer subscription dashboard.
+- Pause, resume and skip dates.
+- Scheduled order generation.
+- Shop subscription management.
+
+### MVP Phase 06 — Bulk Orders
+- Bulk order landing page.
+- Enquiry form.
+- Shop enquiry management.
+- Quotation creation.
+- Quotation acceptance.
+- Confirmed bulk orders.
+- Bulk production planning.
+
+### MVP Phase 07 — Kitchen
+- Kitchen dashboard.
+- Regular order preparation.
+- Meal-box preparation.
+- Subscription order preparation.
+- Bulk production planning.
+- Ready-for-pickup workflow.
+
+### MVP Phase 08 — Delivery
+- Rider dashboard.
+- Rider assignment.
+- Pickup.
+- Delivery.
+- Delivery confirmation.
+- Bulk dispatch handling.
+
+### MVP Phase 09 — Platform Administration
+- Platform overview.
+- Shop overview.
+- Order monitoring.
+- Subscription activity.
+- Bulk order activity.
+- Commission overview.
+
+### MVP Phase 10 — Demo Readiness
+- Complete end-to-end testing.
+- Responsive design.
+- Seed-data reset.
+- Error handling.
+- Demo instructions.
+- Deployment.
+- Final client presentation checklist.
+
+---
+
+## 22. CLIENT DEMONSTRATION SCENARIOS
+
+The application must support these four demonstrations.
+
+### Scenario A — Normal food order
+
+1. Open the NEZTA customer website.
+2. Browse food categories.
+3. Open the NEZTA shop.
+4. Add several food items to the cart.
+5. Complete checkout using the demo Cash on Delivery option.
+6. Place an order.
+7. Open Shop Admin.
+8. Accept the order.
+9. Open Kitchen.
+10. Start preparing the food.
+11. Mark the order ready.
+12. Assign a rider.
+13. Open the Rider application.
+14. Accept the delivery.
+15. Mark the food picked up.
+16. Mark it out for delivery.
+17. Complete delivery using demo confirmation.
+18. Return to Customer Tracking.
+19. Show the completed delivery.
+20. Open Platform Admin.
+21. Show the updated order and sales overview.
+22. Demonstrate illustrative platform commission.
+
+### Scenario B — Customizable meal box
+
+1. Open the Meal Boxes section.
+2. Select a Special Veg Meal Box.
+3. Customize chapati quantity.
+4. Choose rice preference.
+5. Add or remove optional items.
+6. Add an extra dessert.
+7. Show the dynamically updated price.
+8. Add the meal box to the cart.
+9. Complete checkout.
+10. Open the order in Shop Admin.
+11. Show the saved customization selections.
+12. Open Kitchen.
+13. Show the preparation instructions.
+
+### Scenario C — Tiffin subscription
+
+1. Open Tiffin Plans.
+2. Browse daily, weekly and monthly plans.
+3. Select a monthly tiffin plan.
+4. Choose a start date.
+5. Select a delivery address.
+6. Confirm the demo subscription.
+7. Open Customer Subscriptions.
+8. Show the active subscription.
+9. Demonstrate skipping a delivery date.
+10. Demonstrate pausing and resuming the subscription.
+11. Open Shop Admin.
+12. Generate scheduled subscription orders.
+13. Show the generated orders in the kitchen dashboard.
+14. Demonstrate a subscription delivery moving through the normal order workflow.
+
+### Scenario D — Bulk and corporate order
+
+1. Open the Bulk Orders section.
+2. Select the Office Lunch Package.
+3. Submit an enquiry for an illustrative quantity of 50 meals.
+4. Open Shop Admin.
+5. Show the new enquiry.
+6. Prepare a quotation.
+7. Set package, quantity, per-person price and additional charges.
+8. Submit the quotation.
+9. Accept the quotation through the demo customer flow.
+10. Convert it into a confirmed bulk order.
+11. Open Kitchen.
+12. Show aggregate production quantities.
+13. Update preparation status.
+14. Mark the order ready.
+15. Mark the bulk order dispatched or assign a rider.
+16. Show the completed bulk order in Shop Admin and Platform Admin.
+
+Every step must work using the same database records.
+
+---
+
+## 23. DEVELOPMENT RULES
+
+1. Inspect the existing project before creating or modifying files.
+2. Do not overwrite working code without checking dependencies.
+3. Work in the specified phases.
+4. Provide complete working files for each implementation phase.
+5. Do not generate the entire MVP in one enormous response.
+6. Do not create fake interactive buttons.
+7. Persist important demo actions in PostgreSQL.
+8. Keep the code maintainable and extensible.
+9. Validate every API request.
+10. Enforce backend permissions.
+11. Keep sample data editable.
+12. Do not introduce unnecessary services.
+13. Use JavaScript and JSX only.
+14. Explain architecture changes.
+15. Test each phase before proceeding.
+16. Clearly identify completed and pending work.
+17. Do not claim that a feature is working until it has been tested.
+18. Keep demo limitations documented.
+19. Keep meal-box customization data attached to the order item.
+20. Prevent duplicate subscription-generated orders.
+21. Preserve the original bulk quotation when converting it into a confirmed order.
+22. Use database transactions for important subscription and bulk-order operations.
+
+For each phase, provide:
+- Files created.
+- Files modified.
+- Dependencies installed.
+- Database changes.
+- APIs implemented.
+- Screens implemented.
+- Testing instructions.
+- Commands to run.
+- Known limitations.
+- Completion checklist.
+
+---
+
+## 24. FINAL MVP ACCEPTANCE CRITERIA
+
+The MVP is ready for the client only when:
+
+### Core marketplace
+- The customer website looks professional.
+- Products can be browsed.
+- Cart calculations work.
+- A customer can place an order.
+- The order is saved in PostgreSQL.
+
+### Meal boxes
+- Meal boxes can be browsed.
+- Customers can customize supported options.
+- Dynamic pricing works.
+- Customizations appear correctly in the shop and kitchen interfaces.
+
+### Tiffin subscriptions
+- Daily, weekly and monthly plans are available.
+- A customer can purchase a demo subscription.
+- Customers can view their subscriptions.
+- Pause, resume and skip-date functions work.
+- Scheduled subscription orders can be generated without duplication.
+- Shop Admin can manage subscribers and upcoming deliveries.
+
+### Bulk orders
+- Customers can submit bulk enquiries.
+- Shop Admin can view enquiries.
+- Shop Admin can create quotations.
+- Customers can accept quotations.
+- Accepted quotations can become confirmed bulk orders.
+- Bulk orders appear in kitchen production planning.
+- Bulk dispatch can be demonstrated.
+
+### Operations
+- Shop Admin can see normal orders.
+- Shop Admin can accept orders.
+- Kitchen can update preparation.
+- Shop Admin can assign a rider.
+- Rider can complete the delivery workflow.
+- Customer tracking reflects status changes.
+
+### Platform
+- Platform Admin can see orders.
+- Platform Admin can see subscription and bulk order activity.
+- Illustrative commission calculations work.
+
+### Quality
+- All major screens are responsive.
+- No major navigation links are broken.
+- No critical workflow depends on manually editing the database.
+- Demo data can be reset to a clean starting state.
+- The four client demonstration scenarios work from beginning to end.
+
+**The MVP is a proof of concept to help the client approve the full NEZTA project. Do not spend development time building advanced features that are not necessary to demonstrate the core value.**
+
+Build a visually impressive, functional and convincing product demonstration while preserving a clear path to the complete NEZTA multi-shop platform.

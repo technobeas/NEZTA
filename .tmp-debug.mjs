@@ -1,0 +1,10 @@
+const base='http://127.0.0.1:8787';
+const post=(p,b,t)=>fetch(base+p,{method:'POST',headers:{'Content-Type':'application/json',...(t?{Authorization:'Bearer '+t}:{})},body:JSON.stringify(b??{})});
+const login=async e=>(await (await fetch(base+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:'demo1234'})})).json()).token;
+const ct=await login('customer@nezta.demo'), ot=await login('owner@nezta.demo');
+const enq=await (await post('/api/bulk-enquiries',{organizationName:'Debug Co',contactPerson:'Debug',phone:'+91 90000 00001',email:'d@e.com',organizationType:'Corporate',deliveryAddress:'Somewhere in Pune 411001',requiredDate:new Date(Date.now()+4*86400000).toISOString().slice(0,10),preferredTime:'1 PM',estimatedQuantity:40},ct)).json();
+console.log('enquiry status', enq.data?.status, 'customer', enq.data?.customer?.id, enq.error);
+const q=await (await post(`/api/bulk-enquiries/${enq.data.id}/quotations`,{packageName:'Office Lunch Package',quantity:40,perPersonPrice:135,additionalCharges:200,discount:100,terms:'t'},ot)).json();
+console.log('quotation', q.data?.id, q.error);
+const acc=await post(`/api/bulk-quotations/${q.data.id}/accept`,{},ct);
+console.log('accept', acc.status, await acc.text());

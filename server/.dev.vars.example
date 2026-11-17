@@ -1,0 +1,16 @@
+# Copy to server/.dev.vars (wrangler) and/or server/.env (local node dev)
+# Neon PostgreSQL connection string (use the pooled ?sslmode=require URL in production)
+DATABASE_URL="postgresql://user:password@ep-xxx.region.aws.neon.tech/nezta?sslmode=require"
+# Local development database used by this repo's demo cluster
+# DATABASE_URL="postgresql://postgres@127.0.0.1:55432/nezta"
+
+# Secret used to sign demo session tokens (never reuse a real secret)
+DEMO_AUTH_SECRET="nezta-demo-secret-change-me"
+
+# Comma separated list of allowed browser origins
+CORS_ORIGINS="http://localhost:5173,http://127.0.0.1:5173"
+
+# Cloudinary (optional: demo product images come from remote URLs)
+CLOUDINARY_CLOUD_NAME=""
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""

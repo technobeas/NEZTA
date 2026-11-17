@@ -1,0 +1,21 @@
+{
+  "name": "nezta",
+  "private": true,
+  "version": "0.1.0",
+  "description": "NEZTA - multi-shop food ordering and delivery platform (client demo MVP)",
+  "type": "module",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:client": "npm --workspace client run dev",
+    "dev:server": "npm --workspace server run dev",
+    "db:migrate": "npm --workspace server run db:migrate",
+    "db:seed": "npm --workspace server run db:seed",
+    "db:reset": "npm --workspace server run db:reset",
+    "build": "npm --workspace client run build",
+    "preview": "npm --workspace client run preview"
+  }
+}
